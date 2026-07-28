@@ -1,0 +1,77 @@
+{
+  "name": "pi-cursor-lite",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Lightweight Cursor model provider for Pi using one-shot Cursor Local Agent runs",
+  "keywords": [
+    "pi",
+    "pi-package",
+    "cursor",
+    "cursor-sdk",
+    "llm-provider"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "Gchigoo",
+    "email": "stan.guo@mail.ru"
+  },
+  "homepage": "https://github.com/gchigoo/pi-cursor-lite#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gchigoo/pi-cursor-lite.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gchigoo/pi-cursor-lite/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=22.19"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "files": [
+    "src",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm test",
+    "test:pi-load": "node scripts/test-pi-load.mjs",
+    "verify:boundaries": "node scripts/verify-boundaries.mjs",
+    "verify:manifest": "node scripts/verify-manifest.mjs",
+    "test:packed": "node scripts/test-packed.mjs",
+    "smoke:catalog": "node scripts/smoke-catalog.mjs",
+    "smoke:live": "node scripts/smoke-live.mjs",
+    "smoke:agent": "node scripts/smoke-agent.mjs",
+    "prepublishOnly": "npm run check && npm run verify:boundaries && npm run verify:manifest && npm run test:pi-load && npm run test:packed && npm audit --omit=dev"
+  },
+  "dependencies": {
+    "@cursor/sdk": "1.0.24"
+  },
+  "overrides": {
+    "@connectrpc/connect-node": {
+      "undici": "6.27.0"
+    }
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "^0.81.1",
+    "@earendil-works/pi-coding-agent": "0.81.1",
+    "@types/node": "24.12.4",
+    "glob": "^13.0.6",
+    "typescript": "5.9.3",
+    "vitest": "4.1.9"
+  }
+}

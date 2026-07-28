@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Pi local state and credentials
+.pi/
+
+# Build and test output
+dist/
+coverage/
+*.tsbuildinfo
+
+# Packed artifacts
+*.tgz
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Windows accidental device-name artifact
+/nul
