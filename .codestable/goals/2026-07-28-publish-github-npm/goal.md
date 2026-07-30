@@ -1,7 +1,7 @@
 ---
 doc_type: goal
 goal: publish-github-npm
-status: active
+status: complete
 ---
 
 # 发布 GitHub 与 npm 并切换 Pi 安装来源
@@ -43,8 +43,8 @@ status: active
 
 ## Current State
 
-GitHub 与 npm `0.1.0` 已发布，但 consumer audit 暴露 1 high + 3 moderate；owner 已批准项目内修复方案，goal 恢复为 active。
+Goal 已完成：GitHub main 包含可审计 security fork source；npm latest 为安全的 `pi-cursor-lite@0.1.1`；vulnerable 0.1.0 已 deprecated；本机 Pi 使用 0.1.1，消费端与 Pi 共享 root audit 均为 0。终端验收见 `functional-acceptance.md`。
 
 ## Next Action
 
-实现并验证 `@gchigoo/connect-node@1.7.1` 安全补丁包；本地验证通过后请求 scoped package 发布授权。
+none；后续 Cursor SDK 升级时复核 alias contract、consumer audit 和 shell executor 初始化时序。

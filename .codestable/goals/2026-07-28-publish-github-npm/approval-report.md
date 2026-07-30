@@ -27,6 +27,7 @@ created_at: 2026-07-28
 - 2026-07-29：scoped fork 发布成功并在 public registry 可见；主包 0.1.1 alias/dedupe、packed consumer audit、64 tests 和完整 prepublish gate 通过。
 - 2026-07-29：独立 Grok 4.5 High review 发现两个测试可信度缺口，均完成 focused closure；代码 review 状态为 passed。
 - 2026-07-29：owner 批准完整 0.1.1 release sequence：scoped commit/push、主包 publish、0.1.0 deprecate、本机 Pi 切换与验收。
+- 2026-07-30：release sequence 全部完成；直接增量升级残留旧 hoist 后按批准路径卸载/重装，最终 Pi root audit=0；独立 Grok 终端验收 PASS。
 
 ## Decision
 
@@ -74,6 +75,11 @@ owner 已批准完整的 `pi-cursor-lite@0.1.1` release sequence：
 - macOS/Linux shell 仍为平台注入测试，没有真实 runner evidence。
 - npm publish、deprecate 和 GitHub push 不可由普通代码回滚；若 0.1.1 有问题只能发布后续版本。
 
-## Execution Order
+## Outcome
 
-严格按 commit/push → provenance 核验 → main publish → 0.1.0 deprecate → 本机切换与验收执行；任一步失败立即停止。
+- GitHub main：`1600d678713833ae804b075adad1c58bc3d2ccdb`
+- npm latest：`pi-cursor-lite@0.1.1`
+- deprecated：`pi-cursor-lite@0.1.0`
+- 本机 Pi：`npm:pi-cursor-lite@0.1.1`
+- Registry consumer / Pi shared root audit：0 vulnerabilities
+- Functional acceptance：PASS（`functional-acceptance.md`）

@@ -45,6 +45,19 @@ upstream 1.7.0 的运行时代码和类型声明逐字节一致，只把有漏�
 仅有 `undici@6.27.0`，并执行生产 `npm audit`。仅开发仓库根目录 audit 通过不算完成，
 因为依赖包自己的 `overrides` 不会传播给 npm 消费者。
 
+### 从 0.1.0 升级
+
+Pi 使用共享 npm 安装根。直接从 0.1.0 原地升级可能在 lockfile 中保留旧的 hoisted
+`@connectrpc/connect-node` 和有漏洞的 Undici 5。请先完整移除旧包，再安装 0.1.1：
+
+```bash
+pi remove npm:pi-cursor-lite
+pi install npm:pi-cursor-lite@0.1.1
+```
+
+随后确认 `pi list` 显示 `npm:pi-cursor-lite@0.1.1`。干净安装会让 Cursor SDK
+解析到 `@gchigoo/connect-node@1.7.1` 和 `undici@6.27.0`。
+
 ## 运行模式
 
 | 模式 | 行为 | 启用方式 |

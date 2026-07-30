@@ -45,6 +45,20 @@ that Cursor SDK deduplicates to the patched package, requires only `undici@6.27.
 and runs a production `npm audit`. A green audit in this repository alone is not
 accepted because dependency-package `overrides` do not propagate to npm consumers.
 
+### Upgrading from 0.1.0
+
+Pi uses a shared npm installation root. An in-place upgrade from 0.1.0 can retain the
+old hoisted `@connectrpc/connect-node` and vulnerable Undici 5 in its lockfile. Remove
+the old package completely before installing 0.1.1:
+
+```bash
+pi remove npm:pi-cursor-lite
+pi install npm:pi-cursor-lite@0.1.1
+```
+
+Then verify `pi list` shows `npm:pi-cursor-lite@0.1.1`. A clean install resolves
+Cursor SDK to `@gchigoo/connect-node@1.7.1` and `undici@6.27.0`.
+
 ## Modes
 
 | Mode | Behavior | How to activate |

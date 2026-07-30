@@ -1,6 +1,6 @@
 schema_version: 2
 goal: publish-github-npm
-status: active
+status: complete
 objective: 将 pi-cursor-lite 以公开 GitHub 仓库和无已知生产依赖漏洞的 npm 包发布，并让本机 Pi 使用安全的 npm 版本
 start_point: 仓库无首次提交和 remote；README 仅英文；包为 private；Pi 当前安装本地目录版本
 acceptance:
@@ -17,8 +17,8 @@ non_goals:
 budget:
   kind: none
   limit: null
-current_iteration: 6
-next_action: 执行获批的 0.1.1 release sequence 并完成终端功能验收
+current_iteration: 7
+next_action: none; goal complete
 blocker_signature: null
 blocker_count: 0
 owner_stop:
