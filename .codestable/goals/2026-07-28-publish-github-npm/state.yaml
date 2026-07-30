@@ -1,28 +1,28 @@
 schema_version: 2
 goal: publish-github-npm
 status: active
-objective: 将 pi-cursor-lite 以公开 GitHub 仓库和 npm 包发布，并把本机 Pi 从本地目录版本切换为 npm 版本
+objective: 将 pi-cursor-lite 以公开 GitHub 仓库和无已知生产依赖漏洞的 npm 包发布，并让本机 Pi 使用安全的 npm 版本
 start_point: 仓库无首次提交和 remote；README 仅英文；包为 private；Pi 当前安装本地目录版本
 acceptance:
   - GitHub 公开仓库 gchigoo/pi-cursor-lite 存在且默认分支包含安全的首次提交
   - README.md 与 README.zh-CN.md 构成内容一致的中英双语入口
-  - npm 上可查询并安装 pi-cursor-lite@0.1.0
-  - 本机 Pi 不再列出项目本地目录包，而列出 npm:pi-cursor-lite
+  - npm 上可查询已修复 Windows shell/context metadata 且消费端生产 audit 为 0 的后续版本
+  - 本机 Pi 不再列出项目本地目录包，而列出安全的 npm:pi-cursor-lite 版本
   - pi --list-models cursor-lite 能显示 cursor-lite/auto
   - 发布前测试、边界、manifest、Pi load、packed install、npm audit 和 secret/path 检查通过
 non_goals:
-  - 不修改 Cursor provider 的功能行为
   - 不读取、打印或提交 token 与 .pi/auth.json
-  - 不发布 0.1.0 之外的新版本
+  - 不要求消费者配置 root override 或依赖可绕过的 install guard
+  - 不重新分发专有许可的 Cursor SDK 代码
 budget:
   kind: none
   limit: null
-current_iteration: 3
-next_action: 创建安全首次提交并推送公开 GitHub 仓库
+current_iteration: 6
+next_action: 执行获批的 0.1.1 release sequence 并完成终端功能验收
 blocker_signature: null
 blocker_count: 0
 owner_stop:
-  status: none
-  reason: null
-  decision: null
+  status: resolved
+  reason: RiskAcceptanceNeeded
+  decision: "ResumeWith: approve-0.1.1-release"
 updated_at: "2026-07-28"

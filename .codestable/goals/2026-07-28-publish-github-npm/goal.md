@@ -8,7 +8,7 @@ status: active
 
 ## Objective
 
-将当前项目安全地发布到公开 GitHub 仓库 `gchigoo/pi-cursor-lite` 和 npm 包 `pi-cursor-lite@0.1.0`，随后把本机 Pi 从本地目录安装切换到 npm 安装。
+将当前项目安全地发布到公开 GitHub 仓库和 npm，并让本机 Pi 使用已包含 Windows shell/context 修复、且消费端无已知生产依赖漏洞的 npm 版本。
 
 ## Starting Point
 
@@ -21,26 +21,30 @@ status: active
 
 1. 公开 GitHub 仓库存在，首次提交使用 `Gchigoo <stan.guo@mail.ru>`，不包含 `.pi/`、`node_modules/`、token、tarball 或本机临时文件。
 2. `README.md`（English）和 `README.zh-CN.md`（中文）互相链接，安装命令指向正式 npm 包。
-3. `pi-cursor-lite@0.1.0` 发布后可通过 npm registry 查询和安装。
-4. 本机 Pi 卸载本地路径包并安装 `npm:pi-cursor-lite@0.1.0`，模型目录可见 `cursor-lite/auto`。
-5. 发布前全部自动化和安全检查通过。
+3. npm 后续版本包含 Windows shell/context metadata 修复，可通过 registry 查询和安装。
+4. 普通 npm 消费者安装树不再包含易受攻击的 `undici@5.29.0`，生产 audit 为 0。
+5. 本机 Pi 安装安全的 npm 版本，模型目录可见 `cursor-lite/auto`。
+6. 发布前全部自动化、安全、packed consumer 和独立验收检查通过。
 
 ## Non-Goals
 
-- 不改变 provider 功能或版本号。
 - 不读取或暴露任何 token/OTP；认证不足时停下由 owner 在本机处理。
-- 不进行后续版本发布、release notes 自动化或 CI 扩展。
+- 不要求消费者配置 root override，也不使用可被 `--ignore-scripts` 绕过的安全 guard。
+- 不重新分发专有许可的 Cursor SDK 代码。
+- 不扩展 release notes 自动化或 CI。
 
 ## Decisions And Assumptions
 
-- owner 已批准 GitHub public、GitHub push、npm publish 和 Pi 安装源切换；见 `approval-report.md`。
+- owner 已批准 GitHub public、首次 npm publish 和 Pi 安装源切换；见 `approval-report.md`。
+- 2026-07-29 owner 明确选择不等待上游，在本项目内直接消除 vulnerable `undici` consumer tree。
+- 安全方案维护 Apache-2.0 的 connect-node 补丁包，通过 npm alias 满足 Cursor SDK 的 `^1.6.1` 依赖；不 fork Cursor SDK。
 - 双语 README 采用仓库常见结构：English canonical `README.md` + `README.zh-CN.md`。
 - Git 仅在本仓设置提交身份，不修改全局配置。
 
 ## Current State
 
-Goal 已启动，等待建立发布基线。
+GitHub 与 npm `0.1.0` 已发布，但 consumer audit 暴露 1 high + 3 moderate；owner 已批准项目内修复方案，goal 恢复为 active。
 
 ## Next Action
 
-新增安全 `.gitignore` 与 MIT LICENSE，更新 npm 元数据，完成中英 README 后执行发布前验证。
+实现并验证 `@gchigoo/connect-node@1.7.1` 安全补丁包；本地验证通过后请求 scoped package 发布授权。

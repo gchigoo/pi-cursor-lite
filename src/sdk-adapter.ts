@@ -10,6 +10,7 @@ import { CursorLiteError } from "./error.js";
 import { sanitizeError, safeRequestId } from "./sanitize.js";
 import type { CursorSdkPort, CursorCatalogModel, CursorRunResult, CursorRunSink } from "./sdk-port.js";
 import type { CursorLiteMode } from "./mode.js";
+import { resolveCursorRuntimeShell, withCursorShellEnvironment } from "./runtime-shell.js";
 
 export function createCursorSdkAdapter(): CursorSdkPort {
   return {
@@ -75,6 +76,7 @@ export function createCursorSdkAdapter(): CursorSdkPort {
           return { status: "aborted" as const };
         }
 
+        const shell = resolveCursorRuntimeShell();
         const store = new JsonlLocalAgentStore(rootDir);
 
         agent = await Agent.create({
@@ -94,7 +96,7 @@ export function createCursorSdkAdapter(): CursorSdkPort {
           return { status: "aborted" as const };
         }
 
-        run = await agent.send(input.prompt, {
+        run = await withCursorShellEnvironment(shell, () => agent!.send(input.prompt, {
           mode: input.mode as "plan" | "agent",
           onDelta: ({ update }) => {
             if (cancelRequested) return;
@@ -105,7 +107,7 @@ export function createCursorSdkAdapter(): CursorSdkPort {
             }
             // All other update types (tool-call-*, step-*, summary-*, etc.) are silently ignored
           },
-        });
+        }));
 
         const waitPromise = run.wait();
 

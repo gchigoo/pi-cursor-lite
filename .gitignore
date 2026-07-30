@@ -6,6 +6,8 @@ node_modules/
 
 # Build and test output
 dist/
+!packages/connect-node/dist/
+!packages/connect-node/dist/**
 coverage/
 *.tsbuildinfo
 

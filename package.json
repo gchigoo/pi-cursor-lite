@@ -1,6 +1,6 @@
 {
   "name": "pi-cursor-lite",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": false,
   "description": "Lightweight Cursor model provider for Pi using one-shot Cursor Local Agent runs",
   "keywords": [
@@ -50,18 +50,15 @@
     "verify:boundaries": "node scripts/verify-boundaries.mjs",
     "verify:manifest": "node scripts/verify-manifest.mjs",
     "test:packed": "node scripts/test-packed.mjs",
+    "test:connect-node-fork": "node scripts/test-connect-node-fork.mjs",
     "smoke:catalog": "node scripts/smoke-catalog.mjs",
     "smoke:live": "node scripts/smoke-live.mjs",
     "smoke:agent": "node scripts/smoke-agent.mjs",
-    "prepublishOnly": "npm run check && npm run verify:boundaries && npm run verify:manifest && npm run test:pi-load && npm run test:packed && npm audit --omit=dev"
+    "prepublishOnly": "npm run test:connect-node-fork && npm run check && npm run verify:boundaries && npm run verify:manifest && npm run test:pi-load && npm run test:packed && npm audit --omit=dev"
   },
   "dependencies": {
+    "@connectrpc/connect-node": "npm:@gchigoo/connect-node@1.7.1",
     "@cursor/sdk": "1.0.24"
-  },
-  "overrides": {
-    "@connectrpc/connect-node": {
-      "undici": "6.27.0"
-    }
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*"

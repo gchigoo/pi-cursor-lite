@@ -14,7 +14,7 @@ Each request creates an independent **one-shot Cursor Local Agent** run:
 
 ```bash
 # 1. Install the published package in Pi
-pi install npm:pi-cursor-lite@0.1.0
+pi install npm:pi-cursor-lite@0.1.1
 
 # 2. Set your Cursor API key
 export CURSOR_API_KEY=sk-cursor-...
@@ -31,6 +31,19 @@ export CURSOR_API_KEY=sk-cursor-...
 - **Pi** >= 0.81.1 (peer dependency)
 - **Cursor SDK API Key** — obtain from [cursor.com/settings](https://cursor.com/settings)
 - This extension does **NOT** reuse Cursor Desktop or Cursor CLI login state
+
+## Dependency Security
+
+`pi-cursor-lite@0.1.1` aliases Cursor SDK's `@connectrpc/connect-node` dependency to the
+project-maintained [`@gchigoo/connect-node@1.7.1`](https://github.com/gchigoo/pi-cursor-lite/tree/main/packages/connect-node).
+The fork keeps the upstream 1.7.0 runtime and declaration files byte-identical and
+replaces vulnerable Undici 5 with pinned `undici@6.27.0`. It is distributed under
+the upstream Apache-2.0 license with explicit provenance and modification notices.
+
+The release gate installs the packed main package in a clean consumer root, verifies
+that Cursor SDK deduplicates to the patched package, requires only `undici@6.27.0`,
+and runs a production `npm audit`. A green audit in this repository alone is not
+accepted because dependency-package `overrides` do not propagate to npm consumers.
 
 ## Modes
 
@@ -77,13 +90,25 @@ This extension is implemented against the official [Cursor TypeScript SDK docume
 
 The SDK catalog exposes IDs, names, parameters, and variants, but not context-window or output-limit numbers. Pi still requires those fields, so the extension supplies conservative metadata separately.
 
+### Runtime shell discovery
+
+Before Cursor initializes its local terminal executor, the extension resolves a supported shell:
+
+- **Windows:** use the actual Git Bash found from existing MSYS/Git hints or `where.exe git`; if unavailable, fall back to `pwsh`, then Windows PowerShell
+- **macOS:** keep a valid `SHELL`, otherwise try zsh, bash, pwsh, then POSIX sh
+- **Linux:** keep a valid `SHELL`, otherwise try bash, zsh, pwsh, then POSIX sh
+
+The selected environment is applied only during terminal-executor initialization, serialized across concurrent requests, and restored in `finally`. If no supported shell exists, the request fails with a provider error instead of attempting a fixed path.
+
 ## Model Metadata
 
 | Model / field | Pi value | Source / accuracy |
 |---------------|----------|-------------------|
-| `grok-4.5` contextWindow | 256000 | Cursor's [Models & Pricing](https://cursor.com/cn/docs/models-and-pricing) catalog (`256k`) |
-| `auto` contextWindow | 128000 | Conservative Pi-side fallback; the routed model is unknown |
-| Other discovered models contextWindow | 128000 | Conservative Pi-side fallback |
+| `auto` contextWindow | 200000 | Conservative fallback based on Cursor's lowest documented default among routed coding models |
+| Composer and other discovered models contextWindow | 200000 | Cursor-documented baseline or conservative fallback |
+| `grok-4.5` contextWindow | 256000 | Cursor-documented default (`256k`) |
+| Kimi K2.7 Code family contextWindow | 262000 | Cursor-documented default (`262k`) |
+| GPT-5 family contextWindow | 272000 | Cursor-documented default (`272k`) |
 | maxTokens | 16384 | Pi-side estimate only |
 | cost | $0 | Unknown — "zero" does **not** mean free |
 
@@ -155,7 +180,7 @@ Package removal does **not** automatically delete your API key from `auth.json`.
 - **No MCP bridge** — Cursor tools don't translate to Pi tool calls
 - **No Cloud support** — local agent runtime only
 - **No model parameter mapping** — thinking effort, temperature, etc. not exposed
-- **Partial metadata** — Grok 4.5 uses Cursor's documented 256k window; unknown model windows and output limits remain estimates
+- **Partial metadata** — documented model families use Cursor defaults; unknown model windows use the 200k fallback and output limits remain estimates
 
 ## Platform Support
 

@@ -1,0 +1,41 @@
+{
+  "name": "@gchigoo/connect-node",
+  "version": "1.7.1",
+  "description": "Security-maintained @connectrpc/connect-node 1.7.0 compatibility fork for pi-cursor-lite",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gchigoo/pi-cursor-lite.git",
+    "directory": "packages/connect-node"
+  },
+  "bugs": {
+    "url": "https://github.com/gchigoo/pi-cursor-lite/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "./dist/cjs/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "undici": "6.27.0"
+  },
+  "peerDependencies": {
+    "@bufbuild/protobuf": "^1.10.0",
+    "@connectrpc/connect": "1.7.0"
+  }
+}

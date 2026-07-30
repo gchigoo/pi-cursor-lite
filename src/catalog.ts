@@ -5,7 +5,7 @@ import { sanitizeError } from "./sanitize.js";
 import type { CursorSdkPort } from "./sdk-port.js";
 
 /** Fallback metadata for models whose limits aren't exposed by the Cursor SDK. */
-const DEFAULT_CONTEXT_WINDOW = 128000;
+const DEFAULT_CONTEXT_WINDOW = 200000;
 const ESTIMATED_MAX_TOKENS = 16384;
 
 /**
@@ -13,12 +13,15 @@ const ESTIMATED_MAX_TOKENS = 16384;
  * `Cursor.models.list()` exposes ids and variants, but not context sizes.
  * Source: https://cursor.com/cn/docs/models-and-pricing
  */
-const CURSOR_CONTEXT_WINDOWS: Readonly<Record<string, number>> = {
-  "grok-4.5": 256000,
-};
+const CURSOR_CONTEXT_WINDOWS: ReadonlyArray<readonly [RegExp, number]> = [
+  [/^grok-4\.5(?:$|-)/i, 256000],
+  [/^kimi-k2[.-]7(?:-code)?(?:$|-)/i, 262000],
+  [/^gpt-5(?:$|[.-])/i, 272000],
+];
 
 function contextWindowFor(modelId: string): number {
-  return CURSOR_CONTEXT_WINDOWS[modelId] ?? DEFAULT_CONTEXT_WINDOW;
+  return CURSOR_CONTEXT_WINDOWS.find(([pattern]) => pattern.test(modelId))?.[1]
+    ?? DEFAULT_CONTEXT_WINDOW;
 }
 const ZERO_COST = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 };
 

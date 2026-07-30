@@ -15,7 +15,7 @@
 
 ```bash
 # 1. 在 Pi 中安装已发布的 npm 包
-pi install npm:pi-cursor-lite@0.1.0
+pi install npm:pi-cursor-lite@0.1.1
 
 # 2. 设置 Cursor API Key
 export CURSOR_API_KEY=sk-cursor-...
@@ -32,6 +32,18 @@ export CURSOR_API_KEY=sk-cursor-...
 - **Pi** >= 0.81.1（peer dependency）
 - **Cursor SDK API Key** — 从 [cursor.com/settings](https://cursor.com/settings) 获取
 - 本扩展**不会**复用 Cursor Desktop 或 Cursor CLI 的登录状态
+
+## 依赖安全
+
+`pi-cursor-lite@0.1.1` 通过 npm alias 将 Cursor SDK 的
+`@connectrpc/connect-node` 依赖指向项目维护的
+[`@gchigoo/connect-node@1.7.1`](https://github.com/gchigoo/pi-cursor-lite/tree/main/packages/connect-node)。该 fork 保持
+upstream 1.7.0 的运行时代码和类型声明逐字节一致，只把有漏洞的 Undici 5 替换为固定的
+`undici@6.27.0`；包按 upstream Apache-2.0 许可证分发，并明确记录来源和修改内容。
+
+发布 gate 会在干净消费端安装主包 tarball，确认 Cursor SDK 去重到安全补丁包、依赖树中
+仅有 `undici@6.27.0`，并执行生产 `npm audit`。仅开发仓库根目录 audit 通过不算完成，
+因为依赖包自己的 `overrides` 不会传播给 npm 消费者。
 
 ## 运行模式
 
@@ -80,13 +92,25 @@ Cursor Agent 在内部运行自己的 read、write、edit、bash、grep 等工�
 
 SDK 目录提供 ID、名称、参数和 variant，但不提供 context window 或输出限制；因此 Pi 所需的这些字段由扩展提供保守估值。
 
+### 运行时 shell 探测
+
+在 Cursor 初始化本地 terminal executor 前，扩展会解析受支持的 shell：
+
+- **Windows：** 从现有 MSYS/Git 线索或 `where.exe git` 找到用户实际的 Git Bash；找不到时依次回退到 `pwsh` 和 Windows PowerShell
+- **macOS：** 保留有效的 `SHELL`，否则依次尝试 zsh、bash、pwsh、POSIX sh
+- **Linux：** 保留有效的 `SHELL`，否则依次尝试 bash、zsh、pwsh、POSIX sh
+
+选中的环境只在 terminal executor 初始化期间生效；并发请求会串行进入该临界区，并在 `finally` 中恢复环境。没有可用 shell 时，请求会返回 provider 错误，不再尝试固定路径。
+
 ## 模型元数据
 
 | 模型 / 字段 | Pi 值 | 来源 / 精度 |
 |---|---:|---|
-| `grok-4.5` contextWindow | 256000 | Cursor [Models & Pricing](https://cursor.com/cn/docs/models-and-pricing) 的 `256k` |
-| `auto` contextWindow | 128000 | Pi 侧保守 fallback，实际路由模型未知 |
-| 其他动态模型 contextWindow | 128000 | Pi 侧保守 fallback |
+| `auto` contextWindow | 200000 | 以 Cursor 已公开路由模型中的最低默认值作为保守 fallback |
+| Composer 和其他动态模型 contextWindow | 200000 | Cursor 默认基线或保守 fallback |
+| `grok-4.5` contextWindow | 256000 | Cursor 已公开默认值 `256k` |
+| Kimi K2.7 Code 系列 contextWindow | 262000 | Cursor 已公开默认值 `262k` |
+| GPT-5 系列 contextWindow | 272000 | Cursor 已公开默认值 `272k` |
 | maxTokens | 16384 | Pi 侧估值 |
 | cost | $0 | 未知；显示为零不代表免费 |
 
@@ -161,7 +185,7 @@ pi remove npm:pi-cursor-lite
 - **无 MCP bridge** — Cursor 工具不会转换成 Pi tool call
 - **无 Cloud 支持** — 仅本地 Agent runtime
 - **不映射模型参数** — 暂不暴露 thinking effort、temperature 等参数
-- **元数据不完整** — Grok 4.5 使用文档值，其他模型限制为估值
+- **元数据不完整** — 已公开模型系列使用 Cursor 默认值；未知模型使用 200k fallback，输出限制仍为估值
 
 ## 平台支持
 

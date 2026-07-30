@@ -48,20 +48,27 @@ describe("createRefreshModels", () => {
     expect(models).toHaveLength(3);
     expect(models[0].id).toBe("auto");
     expect(models[1].id).toBe("composer-2.5");
-    expect(models[1].contextWindow).toBe(128000);
+    expect(models[0].contextWindow).toBe(200000);
+    expect(models[1].contextWindow).toBe(200000);
     expect(models[2].id).toBe("gpt-5.4");
+    expect(models[2].contextWindow).toBe(272000);
   });
 
-  it("uses Cursor's documented 256k context window for grok-4.5", async () => {
+  it("uses Cursor's documented context windows for known model families", async () => {
     const sdk: CursorSdkPort = {
-      listModels: async () => [{ id: "grok-4.5", displayName: "Cursor Grok 4.5" }],
+      listModels: async () => [
+        { id: "grok-4.5", displayName: "Cursor Grok 4.5" },
+        { id: "kimi-k2.7", displayName: "Kimi K2.7 Code" },
+        { id: "gpt-5.4-fast", displayName: "GPT 5.4 Fast" },
+      ],
       run: async () => ({ status: "finished" }),
     };
     const refresh = createRefreshModels(sdk);
     const models = await refresh(fakeContext());
-    const grok = models.find((model) => model.id === "grok-4.5");
 
-    expect(grok?.contextWindow).toBe(256000);
+    expect(models.find((model) => model.id === "grok-4.5")?.contextWindow).toBe(256000);
+    expect(models.find((model) => model.id === "kimi-k2.7")?.contextWindow).toBe(262000);
+    expect(models.find((model) => model.id === "gpt-5.4-fast")?.contextWindow).toBe(272000);
   });
 
   it("deduplicates by id (first occurrence wins)", async () => {

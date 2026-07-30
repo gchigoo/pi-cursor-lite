@@ -8,6 +8,10 @@ import { cwd } from "node:process";
 
 const ROOT = cwd();
 const pkg = JSON.parse(readFileSync(resolve(ROOT, "package.json"), "utf-8"));
+const connectNodeFork = JSON.parse(readFileSync(
+  resolve(ROOT, "packages/connect-node/package.json"),
+  "utf-8",
+));
 
 let errors = [];
 
@@ -16,6 +20,7 @@ function check(condition, msg) {
 }
 
 check(pkg.name === "pi-cursor-lite", `name: expected "pi-cursor-lite", got "${pkg.name}"`);
+check(pkg.version === "0.1.1", `version: expected "0.1.1", got "${pkg.version}"`);
 check(pkg.type === "module", `type: expected "module", got "${pkg.type}"`);
 check(pkg.private === false, "private: must be false for npm publishing");
 check(pkg.pi?.extensions?.includes?.("./src/index.ts"), "pi.extensions: must include ./src/index.ts");
@@ -37,6 +42,21 @@ if (nodeMin) {
 
 // Dependencies
 check(pkg.dependencies?.["@cursor/sdk"] === "1.0.24", "dependencies: must have @cursor/sdk@1.0.24 pinned");
+check(
+  pkg.dependencies?.["@connectrpc/connect-node"] === "npm:@gchigoo/connect-node@1.7.1",
+  "dependencies: must alias @connectrpc/connect-node to @gchigoo/connect-node@1.7.1",
+);
+check(!pkg.overrides, "overrides: remove non-propagating root override after aliasing the patched package");
+
+// Security-maintained Connect Node fork
+check(connectNodeFork.name === "@gchigoo/connect-node", "connect-node fork: unexpected package name");
+check(connectNodeFork.version === "1.7.1", "connect-node fork: expected version 1.7.1");
+check(connectNodeFork.dependencies?.undici === "6.27.0", "connect-node fork: undici must be pinned to 6.27.0");
+check(
+  connectNodeFork.peerDependencies?.["@connectrpc/connect"] === "1.7.0",
+  "connect-node fork: @connectrpc/connect peer must remain 1.7.0",
+);
+check(connectNodeFork.publishConfig?.access === "public", "connect-node fork: publishConfig.access must be public");
 
 // Peer deps
 check(pkg.peerDependencies?.["@earendil-works/pi-coding-agent"], "peerDependencies: must have @earendil-works/pi-coding-agent");
